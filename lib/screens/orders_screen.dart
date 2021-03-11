@@ -8,22 +8,39 @@ import '../widget/app_drawer.dart';
 class OrdersScreen extends StatelessWidget {
   static const routeName = '/orders';
 
-  const OrdersScreen({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    final orderContext = Provider.of<Orders>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Your Orders'),
-      ),
-      drawer: AppDrawer(),
-      body: ListView.builder(
-        itemBuilder: (ctx, i) {
-          return OrderItem(order: orderContext.order[i]);
-        },
-        itemCount: orderContext.order.length,
-      ),
-    );
+        appBar: AppBar(
+          title: Text('Your Orders'),
+        ),
+        drawer: AppDrawer(),
+        body: FutureBuilder(
+          future:
+              Provider.of<Orders>(context, listen: false).fetchAndSetOrders(),
+          builder: (ctx, dataSnapshot) {
+            if (dataSnapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              if (dataSnapshot.error == null) {
+                return Consumer<Orders>(
+                  builder: (ctx, orderContext, _) => ListView.builder(
+                    itemBuilder: (ctx, i) {
+                      return OrderItem(order: orderContext.order[i]);
+                    },
+                    itemCount: orderContext.order.length,
+                  ),
+                );
+              } else {
+                // Do Error handling here...
+                return Center(
+                  child: Text('An Error Occured'),
+                );
+              }
+            }
+          },
+        ));
   }
 }
