@@ -37,7 +37,7 @@ class Product with ChangeNotifier {
       final response = await http.put(
         url,
         body: json.encode({
-          isFavorite,
+          'isFavorite': isFavorite,
         }),
       );
       if (response.statusCode >= 400) {

@@ -54,27 +54,38 @@ class Products with ChangeNotifier {
     return _items.where((productItem) => productItem.isFavorite).toList();
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterMap = filterByUser
+        ? {
+            'auth': authToken,
+            'orderBy': "\"creatorId\"",
+            'equalTo': "\"$userId\"",
+          }
+        : {
+            'auth': authToken,
+          };
     final url = Uri.https(
       'flutter-app-c654f-default-rtdb.firebaseio.com',
       '/products.json',
-      {'auth': authToken},
+      filterMap,
     );
     print(url);
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      // print(extractedData);
       final List<Product> loadedProducts = [];
       if (extractedData == null) {
         return;
       }
-       final favUrl = Uri.https(
-      'flutter-app-c654f-default-rtdb.firebaseio.com',
-      '/userFavorites/${userId}.json',
-      {'auth': authToken},
-    );
+      final favUrl = Uri.https(
+        'flutter-app-c654f-default-rtdb.firebaseio.com',
+        '/userFavorites/$userId.json',
+        {'auth': authToken},
+      );
       final favoriteResponse = await http.get(favUrl);
       final favoriteData = json.decode(favoriteResponse.body);
+      // print(favoriteData);
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(
           Product(
@@ -83,11 +94,16 @@ class Products with ChangeNotifier {
             description: prodData['description'],
             price: prodData['price'],
             imageUrl: prodData['imageUrl'],
-            isFavorite: favoriteData == null ? false : favoriteData[prodId] ?? false,
+            isFavorite: favoriteData == null
+                ? false
+                : favoriteData.containsKey(prodId) &&
+                        favoriteData[prodId]['isFavorite'] ??
+                    false,
           ),
         );
       });
       _items = loadedProducts;
+
       notifyListeners();
     } catch (error) {
       // print(error);
@@ -110,7 +126,8 @@ class Products with ChangeNotifier {
           'description': product.description,
           'price': product.price,
           'imageUrl': product.imageUrl,
-        }), 
+          'creatorId': userId,
+        }),
       );
       // print(json.decode(response.body));
       final _newProduct = Product(
