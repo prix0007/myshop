@@ -41,6 +41,10 @@ class Products with ChangeNotifier {
     // ),
   ];
 
+  final String authToken;
+
+  Products(this.authToken, this._items);
+
   List<Product> get items {
     return [..._items];
   }
@@ -53,7 +57,9 @@ class Products with ChangeNotifier {
     final url = Uri.https(
       'flutter-app-c654f-default-rtdb.firebaseio.com',
       '/products.json',
+      {'auth': authToken},
     );
+    print(url);
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -85,7 +91,9 @@ class Products with ChangeNotifier {
     final url = Uri.https(
       'flutter-app-c654f-default-rtdb.firebaseio.com',
       '/products.json',
+      {'auth': authToken},
     );
+    print(url);
     try {
       final response = await http.post(
         url,
@@ -117,6 +125,7 @@ class Products with ChangeNotifier {
     final url = Uri.https(
       'flutter-app-c654f-default-rtdb.firebaseio.com',
       '/products/${id}.json',
+      {'auth': authToken},
     );
     try {
       await http.patch(
@@ -147,6 +156,7 @@ class Products with ChangeNotifier {
     final url = Uri.https(
       'flutter-app-c654f-default-rtdb.firebaseio.com',
       '/products/${productId}.json',
+      {'auth': authToken},
     );
     final existingProductIndex =
         _items.indexWhere((product) => product.id == productId);

@@ -4,6 +4,7 @@ import "package:provider/provider.dart";
 import '../screens/product_detail_screen.dart';
 import '../providers/product.dart';
 import '../providers/cart.dart';
+import '../providers/auth.dart';
 
 class ProductItem extends StatelessWidget {
   // final String imageUrl;
@@ -18,7 +19,10 @@ class ProductItem extends StatelessWidget {
       context,
       listen: false,
     );
-
+    final auth = Provider.of<Auth>(
+      context,
+      listen: false,
+    );
     return Consumer<Product>(
       builder: (ctx, product, _) => ClipRRect(
         borderRadius: BorderRadius.circular(10),
@@ -43,7 +47,7 @@ class ProductItem extends StatelessWidget {
                     ? Icons.favorite
                     : Icons.favorite_border_outlined),
                 onPressed: () {
-                  product.toggleFavoriteStatus();
+                  product.toggleFavoriteStatus(auth.token);
                 },
                 color: Theme.of(context).accentColor,
               ),
