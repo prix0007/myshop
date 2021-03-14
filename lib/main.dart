@@ -13,6 +13,7 @@ import 'providers/cart.dart';
 import 'providers/orders.dart';
 import 'providers/auth.dart';
 import 'screens/splash_screen.dart';
+import 'helpers/custom_route.dart';
 
 void main() {
   runApp(MyApp());
@@ -53,10 +54,13 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'Flutter Demo',
           theme: ThemeData(
-            primarySwatch: Colors.purple,
-            accentColor: Colors.orange,
-            fontFamily: 'Lato',
-          ),
+              primarySwatch: Colors.purple,
+              accentColor: Colors.orange,
+              fontFamily: 'Lato',
+              pageTransitionsTheme: PageTransitionsTheme(builders: {
+                TargetPlatform.android: CustomPageTransitionBuilder(),
+                TargetPlatform.iOS: CustomPageTransitionBuilder(),
+              })),
           home: auth.isAuth
               ? ProductOverviewScreen()
               : FutureBuilder(
